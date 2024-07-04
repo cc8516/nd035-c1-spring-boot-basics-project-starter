@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
@@ -54,18 +55,30 @@ public class HomeController {
             model.addAttribute("credentials", credentialService.getAllCredentials());
         }
 
-        return "home";
+        return "Home";
     }
 
     @PostMapping("/upload")
-    public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile file) throws IOException {
+    public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
 
         String username = authentication.getName();
         User user = userMapper.getUser(username);
 
+        redirectAttributes.addFlashAttribute("tab", "file");
+        String uploadError = null;
+
+        if (file.isEmpty()) {
+           uploadError = "File is empty";
+        }
+
+        if (uploadError != null) {
+            redirectAttributes.addFlashAttribute("error", uploadError);
+            return "redirect:/result?error";
+        }
+
         fileService.addFile(file, user.getUserId());
 
-        return "redirect:/home?tab=file";
+        return "redirect:/result?success";
     }
 
     @GetMapping("/upload/delete")

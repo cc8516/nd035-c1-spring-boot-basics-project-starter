@@ -36,6 +36,7 @@ class CloudStorageApplicationTests {
 	public void afterEach() {
 		if (this.driver != null) {
 			driver.quit();
+			driver = null;
 		}
 	}
 
@@ -87,7 +88,7 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
-		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You have successfully signed up!"));
 	}
 
 	
@@ -182,9 +183,14 @@ class CloudStorageApplicationTests {
 		doMockSignUp("Large File","Test","LFT","123");
 		doLogIn("LFT", "123");
 
+		driver.get("http://localhost:" + this.port + "/home?tab=file");
+
 		// Try to upload an arbitrary large file
 		WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(2));
 		String fileName = "upload5m.zip";
+
+		WebElement fileTab = driver.findElement(By.id("nav-files-tab"));
+		fileTab.click();
 
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fileUpload")));
 		WebElement fileSelectButton = driver.findElement(By.id("fileUpload"));
